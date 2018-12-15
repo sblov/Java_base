@@ -1,0 +1,89 @@
+package com.lov.nio;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+
+import org.junit.Test;
+
+/**
+ * 通道（Channel），用于源节点与目标节点的连接，在Java NIO中负责缓冲区中数据的传输，Channel本身不存储数据，需要配合缓冲区进行传输
+ * 
+ * 通道的主要实现类
+ * java.nio.channel.Channel 接口:
+ * 		|--FileChannel
+ * 		|--SocketChannel
+ * 		|--ServerSocketChannel
+ * 		|--DatagramChannel
+ * 
+ * 获取通道
+ * 1.java针对支持通道的类提供了getChannel()方法
+ * 		本地IO
+ * 			FileInputStream/FileOutputStream
+ * 			RandomAccessFile
+ * 		网络IO	
+ * 			Socket
+ * 			SreverSocket
+ * 			DatagramSocket
+ * 2.针对各个通道提供静态方法open()
+ * 3.File工具类的newByteChannel()
+ * 
+ * 
+ * @author P1314023
+ *
+ */
+public class NIOTest_1 {
+
+
+	@Test
+	public void test() throws IOException{
+		
+		FileChannel inChannel = null;
+		FileChannel outChannel = null;
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		try {
+			fis = new FileInputStream("1.txt");
+			fos = new FileOutputStream("2.txt");
+			//获取通道
+			inChannel = fis.getChannel();
+			outChannel = fos.getChannel();
+			//分配指定大小缓冲区
+			ByteBuffer buffer = ByteBuffer.allocate(1024);
+			//将通道数据存入缓冲区
+			while (inChannel.read(buffer) != -1) {
+				//切换读数据模式
+				buffer.flip();
+				//将缓冲区的数据写入通道
+				outChannel.write(buffer);
+				//清空缓冲区
+				buffer.clear();
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			if (outChannel != null) {
+				outChannel.close();
+			}
+			if (inChannel !=  null) {
+				inChannel.close();
+			}
+			if (fos != null) {
+				fos.close();
+			}
+			if (fis != null) {
+				fis.close();
+			}
+		}
+		
+		
+		
+		
+	}
+	
+	
+}
